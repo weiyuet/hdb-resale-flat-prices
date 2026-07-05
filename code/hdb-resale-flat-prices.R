@@ -28,11 +28,19 @@ resale_flat_prices_raw <- read_csv(
 sg_map_raw <- st_read("data/map-data/masterplan-2019-planning-area.geojson")
 
 # 3.0 Prep Data ----
-## 3.1 Convert month to yearmon, calculate price per sqm and parse remaining lease into a decimal ----
+## 3.1 Define estate classifications ----
+mature_towns <- c(
+  "ANG MO KIO", "BEDOK", "BISHAN", "BUKIT MERAH", "BUKIT TIMAH",
+  "CENTRAL AREA", "CLEMENTI", "GEYLANG", "KALLANG/WHAMPOA",
+  "MARINE PARADE", "PASIR RIS", "QUEENSTOWN", "SERANGOON", "TOA PAYOH"
+)
+
+## 3.2 Convert month to yearmon, calculate price per sqm and parse remaining lease into a decimal ----
 resale_flat_prices_clean <- resale_flat_prices_raw %>%
   mutate(
     month = as.yearmon(month, format = "%Y-%m"),
     price_per_sqm = resale_price / floor_area_sqm,
+    estate_type = if_else(town %in% mature_towns, "Mature Estate", "Non-mature Estate"),
     lease_years = as.numeric(str_extract(
       remaining_lease,
       "\\d+(?=\\s*years?)"
@@ -43,11 +51,13 @@ resale_flat_prices_clean <- resale_flat_prices_raw %>%
   ) %>%
   select(-lease_years, -lease_months)
 
-## 3.2 Prep geospatial join data ----
+## 3.3 Prep geospatial join data ----
+hdb_to_ura_translation <- c("KALLANG/WHAMPOA" = "KALLANG", "CENTRAL AREA" = "DOWNTOWN CORE")
+
 town_price_summary <- resale_flat_prices_clean %>% 
-  group_by(town) %>% 
-  summarise(median_price_sqm = median(price_per_sqm, na.rm = TRUE)) %>% 
-  mutate(town = str_replace(town, "KALLANG/WHAMPOA", "KALLANG"))
+  mutate(town_mapped = recode(town, !!!hdb_to_ura_translation)) %>% 
+  group_by(town = town_mapped) %>% 
+  summarise(median_price_sqm = median(price_per_sqm, na.rm = TRUE))
 
 sg_map_clean <- sg_map_raw %>% 
   mutate(town = toupper(PLN_AREA_N)) %>% 
@@ -86,6 +96,7 @@ price_scale_m <- scale_y_continuous(
 
 ## 4.4 Dynamic update time-stamp ----
 update_time <- format(Sys.time(), "%Y-%m-%d %H:%M", tz = "Asia/Singapore")
+
 shared_caption <- paste0(
   "Data: Housing & Development Board (HDB) | Updated: ",
   update_time,
@@ -103,7 +114,8 @@ plot_1 <- resale_flat_prices_clean %>%
     color = "royalblue",
     se = FALSE,
     linewidth = 0.8,
-    method = "gam"
+    method = "gam",
+    formula = y ~ s(x, k = 5)
   ) +
   geom_hline(yintercept = 1e+06, linetype = "dotted", color = "black") +
   date_scale +
@@ -132,7 +144,7 @@ plot_2 <- resale_flat_prices_clean %>%
   ) %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
   ggplot(aes(x = month, y = price_per_sqm, color = flat_type)) +
-  geom_smooth(se = FALSE, linewidth = 0.8, method = "gam") +
+  geom_smooth(se = FALSE, linewidth = 0.8, method = "gam", formula = y ~ s(x, k = 5)) +
   date_scale +
   scale_y_continuous(labels = label_dollar()) +
   scale_color_viridis_d(option = "plasma", end = 0.8) +
@@ -155,14 +167,16 @@ plot_3 <- resale_flat_prices_clean %>%
     color = "royalblue",
     se = FALSE,
     linewidth = 1.0,
-    method = "gam"
+    method = "gam",
+    formula = y ~ s(x, k = 5)
   ) +
+  facet_wrap(vars(estate_type)) +
   scale_x_reverse(limits = c(99, 35), breaks = seq(100, 40, -10)) +
   scale_y_continuous(labels = label_dollar()) +
   base_theme +
   labs(
     title = "How does an aging HDB lease affect its value?",
-    subtitle = "Price per square meter vs. Remaining lease (years)",
+    subtitle = "Price per sqm vs. Remaining lease (years), stratified by Estate Type",
     x = "Remaining Lease (Years left)",
     y = "Price per Sqm ($)",
     caption = shared_caption
@@ -174,14 +188,14 @@ plot_4 <- ggplot(sg_map_clean) +
   scale_fill_viridis_c(option = "magma",
                        direction = -1,
                        labels = label_dollar(),
-                       na.value = "gray90") +
+                       na.value = "gray95") +
   theme_void(base_size = 11) +
   theme(plot.caption = element_text(hjust = 0, color = "gray40"),
         legend.position = "bottom",
         legend.key.width = unit(1.5, "cm"),
-        plot.background = element_rect(fill = "white")) +
+        plot.background = element_rect(fill = "white", color = NA)) +
   labs(title = "Geospatial Heatmap of HDB Resale Value",
-       subtitle = "Median price per square meter by planning area",
+       subtitle = "Median price per sqm by planning area",
        fill = "Median Price/Sqm",
        caption = shared_caption)
 
