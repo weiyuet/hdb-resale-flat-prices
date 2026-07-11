@@ -30,9 +30,20 @@ sg_map_raw <- st_read("data/map-data/masterplan-2019-planning-area.geojson")
 # 3.0 Prep Data ----
 ## 3.1 Define estate classifications ----
 mature_towns <- c(
-  "ANG MO KIO", "BEDOK", "BISHAN", "BUKIT MERAH", "BUKIT TIMAH",
-  "CENTRAL AREA", "CLEMENTI", "GEYLANG", "KALLANG/WHAMPOA",
-  "MARINE PARADE", "PASIR RIS", "QUEENSTOWN", "SERANGOON", "TOA PAYOH"
+  "ANG MO KIO",
+  "BEDOK",
+  "BISHAN",
+  "BUKIT MERAH",
+  "BUKIT TIMAH",
+  "CENTRAL AREA",
+  "CLEMENTI",
+  "GEYLANG",
+  "KALLANG/WHAMPOA",
+  "MARINE PARADE",
+  "PASIR RIS",
+  "QUEENSTOWN",
+  "SERANGOON",
+  "TOA PAYOH"
 )
 
 ## 3.2 Convert month to yearmon, calculate price per sqm and parse remaining lease into a decimal ----
@@ -40,29 +51,40 @@ resale_flat_prices_clean <- resale_flat_prices_raw %>%
   mutate(
     month = as.yearmon(month, format = "%Y-%m"),
     price_per_sqm = resale_price / floor_area_sqm,
-    estate_type = if_else(town %in% mature_towns, "Mature Estate", "Non-mature Estate"),
+    estate_type = if_else(
+      town %in% mature_towns,
+      "Mature Estate",
+      "Non-mature Estate"
+    ),
     lease_years = as.numeric(str_extract(
       remaining_lease,
       "\\d+(?=\\s*years?)"
     )),
+    lease_years = if_else(is.na(lease_years), 0, as.numeric(lease_years)),
     lease_months = str_extract(remaining_lease, "\\d+(?=\\s*months?)"),
     lease_months = if_else(is.na(lease_months), 0, as.numeric(lease_months)),
     remaining_lease_numeric = lease_years + (lease_months / 12)
   ) %>%
   select(-lease_years, -lease_months)
 
-## 3.3 Prep geospatial join data ----
-hdb_to_ura_translation <- c("KALLANG/WHAMPOA" = "KALLANG", "CENTRAL AREA" = "DOWNTOWN CORE")
+## 3.3 Prep geospatial data join ----
+hdb_to_ura_translation <- c(
+  "KALLANG/WHAMPOA" = "KALLANG",
+  "CENTRAL AREA" = "DOWNTOWN CORE"
+)
 
-town_price_summary <- resale_flat_prices_clean %>% 
-  mutate(town_mapped = recode(town, !!!hdb_to_ura_translation)) %>% 
-  group_by(town = town_mapped) %>% 
-  summarise(median_price_sqm = median(price_per_sqm, na.rm = TRUE))
+town_price_summary <- resale_flat_prices_clean %>%
+  mutate(town_mapped = recode(town, !!!hdb_to_ura_translation)) %>%
+  group_by(town = town_mapped) %>%
+  summarise(
+    median_price_sqm = median(price_per_sqm, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-sg_map_clean <- sg_map_raw %>% 
-  mutate(town = toupper(PLN_AREA_N)) %>% 
+sg_map_clean <- sg_map_raw %>%
+  mutate(town = toupper(PLN_AREA_N)) %>%
   left_join(town_price_summary, by = "town")
-  
+
 # 4.0 Shared Plot Configurations ----
 ## 4.1 Define a standardized base theme ----
 base_theme <- list(
@@ -100,7 +122,7 @@ update_time <- format(Sys.time(), "%Y-%m-%d %H:%M", tz = "Asia/Singapore")
 shared_caption <- paste0(
   "Data: Housing & Development Board (HDB) | Updated: ",
   update_time,
-  " | Graphic: weiyuet"
+  " | Project: https://github.com/weiyuet/hdb-resale-flat-prices"
 )
 
 # 5.0 Plotting Data ----
@@ -108,7 +130,12 @@ shared_caption <- paste0(
 plot_1 <- resale_flat_prices_clean %>%
   filter(town != "CENTRAL AREA") %>%
   ggplot(aes(x = month, y = resale_price)) +
-  geom_point(aes(color = resale_price >= 1e+06), size = 0.3, alpha = 0.4, show.legend = FALSE) +
+  geom_point(
+    aes(color = resale_price >= 1e+06),
+    size = 0.3,
+    alpha = 0.4,
+    show.legend = FALSE
+  ) +
   scale_color_manual(values = c("TRUE" = "coral1", "FALSE" = "gray75")) +
   geom_smooth(
     color = "royalblue",
@@ -144,15 +171,19 @@ plot_2 <- resale_flat_prices_clean %>%
   ) %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
   ggplot(aes(x = month, y = price_per_sqm, color = flat_type)) +
-  geom_smooth(se = FALSE, linewidth = 0.8, method = "gam", formula = y ~ s(x, k = 5)) +
+  geom_smooth(
+    se = FALSE,
+    linewidth = 0.8,
+    method = "gam",
+    formula = y ~ s(x, k = 5)
+  ) +
   date_scale +
   scale_y_continuous(labels = label_dollar()) +
   scale_color_viridis_d(option = "plasma", end = 0.8) +
   facet_wrap(~town, ncol = 3) +
   base_theme +
   labs(
-    title = "Trends by Flat Size and Region",
-    subtitle = "Price per sq meter growth across sample towns",
+    title = "Price per sqm growth across sample towns",
     x = NULL,
     y = "Price per Sqm ($)",
     color = "Flat Type",
@@ -185,19 +216,27 @@ plot_3 <- resale_flat_prices_clean %>%
 ## 5.4 Geospatial Map ----
 plot_4 <- ggplot(sg_map_clean) +
   geom_sf(aes(fill = median_price_sqm), color = "white", linewidth = 0.2) +
-  scale_fill_viridis_c(option = "magma",
-                       direction = -1,
-                       labels = label_dollar(),
-                       na.value = "gray95") +
+  scale_fill_viridis_c(
+    option = "magma",
+    direction = -1,
+    labels = label_dollar(),
+    na.value = "gray95"
+  ) +
   theme_void(base_size = 11) +
-  theme(plot.caption = element_text(hjust = 0, color = "gray40"),
-        legend.position = "bottom",
-        legend.key.width = unit(1.5, "cm"),
-        plot.background = element_rect(fill = "white", color = NA)) +
-  labs(title = "Geospatial Heatmap of HDB Resale Value",
-       subtitle = "Median price per sqm by planning area",
-       fill = "Median Price/Sqm",
-       caption = shared_caption)
+  theme(
+    plot.title = element_text(hjust = 0.1),
+    plot.subtitle = element_text(hjust = 0.1),
+    plot.caption = element_text(hjust = 0, color = "gray40"),
+    legend.position = "bottom",
+    legend.key.width = unit(1.5, "cm"),
+    plot.background = element_rect(fill = "white", color = NA)
+  ) +
+  labs(
+    title = "Geospatial Heatmap of HDB Resale Value",
+    subtitle = "Median price per sqm by planning area (Blank areas because HDB Town Names do not match URA Planning Area names)",
+    fill = "Median Price/Sqm",
+    caption = shared_caption
+  )
 
 # 6.0 Summary Table ----
 # Compute total and highest transacted price for million-dollar transactions
@@ -220,7 +259,7 @@ table_image <- million_dollar_flat_summary %>%
     digits = 0,
     prefix = "$"
   ) %>%
-  colformat_int(j = "Total Million-Dollar Flats", big.mark = ",") %>% 
+  colformat_int(j = "Total Million-Dollar Flats", big.mark = ",") %>%
   add_footer_lines(shared_caption) %>%
   bg(bg = "white", part = "all") %>%
   autofit()
