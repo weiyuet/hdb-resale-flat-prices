@@ -95,7 +95,8 @@ base_theme <- list(
   theme(
     plot.caption = element_text(hjust = 0, color = "gray40"),
     panel.grid.minor = element_blank(),
-    strip.text = element_text(face = "bold")
+    strip.text = element_text(face = "bold"),
+    legend.position = "top"
   )
 )
 
@@ -152,7 +153,7 @@ plot_1 <- resale_flat_prices_clean %>%
   facet_wrap(vars(town)) +
   base_theme +
   labs(
-    title = "Million-dollar flats distributions by towns",
+    title = "Million-dollar flat distributions by towns",
     x = NULL,
     y = NULL,
     caption = shared_caption
@@ -217,17 +218,31 @@ plot_3 <- resale_flat_prices_clean %>%
   )
 
 ## 5.4 Town premium ----
-plot_4 <- resale_flat_prices_clean %>% 
-  mutate(town = fct_reorder(town, price_per_sqm, .fun = median)) %>% 
+plot_4 <- resale_flat_prices_clean %>%
+  mutate(town = fct_reorder(town, price_per_sqm, .fun = median)) %>%
   ggplot(aes(x = town, y = price_per_sqm, fill = estate_type)) +
   geom_violin(trim = TRUE, alpha = 0.6, color = "gray40", linewidth = 0.3) +
-  geom_boxplot(width = 0.15, outlier.shape = NA, alpha = 0.7, color = "black", lwd = 0.4) +
-  stat_summary(fun = median, geom = "point", shape = 21, size = 1.2, fill = "white", color = "black") +
+  geom_boxplot(
+    width = 0.15,
+    outlier.shape = NA,
+    alpha = 0.7,
+    color = "black",
+    lwd = 0.4
+  ) +
+  stat_summary(
+    fun = median,
+    geom = "point",
+    shape = 21,
+    size = 1.2,
+    fill = "white",
+    color = "black"
+  ) +
   coord_flip() +
   scale_y_continuous(labels = label_dollar()) +
-  scale_fill_manual(values = c("Mature Estate" = "#2c3e50", "Non-mature Estate" = "#18bc9c")) +
+  scale_fill_manual(
+    values = c("Mature Estate" = "#2c3e50", "Non-mature Estate" = "#18bc9c")
+  ) +
   base_theme +
-  theme(legend.position = "top") +
   labs(
     title = "HDB Town Premium Distribution Profile",
     subtitle = "Price density by ascending median unit value",
@@ -238,10 +253,13 @@ plot_4 <- resale_flat_prices_clean %>%
   )
 
 ## 5.5 Floor height premium ----
-plot_5 <- resale_flat_prices_clean %>% 
-  filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>% 
-  group_by(estate_type, flat_type, floor_mid) %>% 
-  summarise(median_price_sqm = median(price_per_sqm, na.rm = TRUE), .groups = "drop") %>% 
+plot_5 <- resale_flat_prices_clean %>%
+  filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
+  group_by(estate_type, flat_type, floor_mid) %>%
+  summarise(
+    median_price_sqm = median(price_per_sqm, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
   ggplot(aes(x = floor_mid, y = median_price_sqm, color = flat_type)) +
   geom_point(alpha = 0.6, size = 1.5) +
   geom_line(linewidth = 0.8) +
@@ -252,8 +270,10 @@ plot_5 <- resale_flat_prices_clean %>%
   labs(
     title = "The Floor Height Premium Profile",
     subtitle = "Median unit pricing evaluated across vertical storey ranges",
-    x = "Storey Level (Range Midpoint)", y = "Median Price per Sqm ($)",
-    color = "Flat Type", caption = shared_caption
+    x = "Storey Level (Range Midpoint)",
+    y = "Median Price per Sqm ($)",
+    color = "Flat Type",
+    caption = shared_caption
   )
 
 ## 5.6 Geospatial Map ----
