@@ -11,6 +11,24 @@ Data sources:
 
 This project was initially part of the `singapore-data` repository, but I have since created a standalone repository for it because of the interest and attention on this topic.
 
+I started this project to answer some questions I had about the HDB Resale Flat market.
+  - Are prices of resale flats skyrocketing everywhere? Or just in the highly sought after locations?
+  - How much is the town premium between a Mature Estate compared to a Non-mature estate?
+  - How much more are buyers willing to pay for a flat on a higher floor?
+  - How much effect does the lease decay affect the resale price?
+
+As much as possible, I tried to find what the data says, and put my own pre-conceived ideas aside. Did I manage to answer my questions? I think at least some of them.
+
+## Quick Navigation
+
+- [Summary of Million-dollar Resale Flat Transactions](#summary-of-million-dollar-transactions)
+- [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
+- [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
+- [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
+- [Town Premium](#town-premium)
+- [Floor Premium](#floor-premium)
+- [Geo-spatial Heatmap](#geo-spatial-heatmap-of-per-square-meter-prices)
+
 ## Summary of million-dollar transactions
 Toa Payoh has the most number of million-dollar transactions.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flats-prices-summary-table.png)
