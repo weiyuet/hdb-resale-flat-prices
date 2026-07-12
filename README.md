@@ -30,18 +30,18 @@ As much as possible, I tried to find what the data says, and put my own pre-conc
 - [Geo-spatial Heatmap](#geo-spatial-heatmap-of-per-square-meter-prices)
 
 ## Summary of million-dollar transactions
-Toa Payoh has the most number of million-dollar transactions.
+Resale flat sellers in Toa Payoh have done well as it has the most number of million-dollar transactions.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flats-prices-summary-table.png)
 
 ## Million-dollar flats distribution by HDB towns
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-town-absolute.png)
 
 ## Per square-meter price trends across selected HDB towns
-A 5-room flat will be more expensive than a 3-room flat. To accurately see if resale prices are skyrocketing everywhere, I use price per square-meter. Comparing price per square-meter gives a fairer comparison between flat types and locations. 
+A 5-room flat will be more expensive than a 3-room flat. To accurately see if resale prices are skyrocketing everywhere, I use price per square-meter. Comparing price per square-meter gives a fairer comparison between flat types and locations. A surprising find is the price per square-meter does not differ between 3, 4, and 5 room flats in Tampines and Jurong West.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-multivariate-sqm.png)
 
 ## Effect of lease decay on per square-meter prices
-Resale prices in Mature Estates hold up better than in Non-mature Estates. As expected, as the lease runs down, the resale prices fall. However, between 60 and 50 years lease remaining, the prices rise back up a little, breaking the trend, before really collapsing in the last 3 decades of the lease.
+Resale prices in Mature Estates hold up better than in Non-mature Estates. As expected, as the lease runs down, the resale prices fall. However, between 60 and 50 years lease remaining, the prices rise back up a little, breaking the trend, before collapsing in the last 3 decades of the lease.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-lease-decay.png)
 
 ## Town Premium
@@ -53,7 +53,7 @@ Anecdotally, buyers are usually willing to pay more for a flat at a higher floor
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-floor-premium.png)
 
 ## Geo-spatial heatmap of per square-meter prices
-The gray gaps in the map occur because HDB uses general town names (Central Area, Kallang/Whampoa, Marine Parade etc), while the URA Master Plan divides the island into precise Planning Areas (Downtown Core, Rochor, Outram, Kallang etc). Some of these areas do not match exactly, resulting in the gray blank areas. No surprise that the Downtown Core and Central areas have the highest per square-meter prices. Among the towns that are furthest from the city center, Punggol has some of the most expensive per square meter prices.
+The gray gaps in the map occur because HDB uses general town names (Central Area, Kallang/Whampoa, Marine Parade etc), while the URA Master Plan divides the island into precise Planning Areas (Downtown Core, Rochor, Outram, Kallang etc). Some of these areas do not match exactly, resulting in the gray blank areas. No surprise that the Downtown Core and Central areas have the highest per square-meter prices. Among the towns that are furthest from the city center, Punggol is an outlier, and has some of the most expensive per square meter prices.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-geospatial-map.png)
 
 End

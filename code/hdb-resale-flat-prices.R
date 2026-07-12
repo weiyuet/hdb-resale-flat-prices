@@ -173,6 +173,7 @@ plot_2 <- resale_flat_prices_clean %>%
   ) %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
   ggplot(aes(x = month, y = price_per_sqm, color = flat_type)) +
+  geom_point(size = 0.3, alpha = 0.4, color = "gray75") +
   geom_smooth(
     se = FALSE,
     linewidth = 0.8,
@@ -181,8 +182,8 @@ plot_2 <- resale_flat_prices_clean %>%
   ) +
   date_scale +
   scale_y_continuous(labels = label_dollar()) +
-  scale_color_viridis_d(option = "plasma", end = 0.8) +
-  facet_wrap(~town, ncol = 3) +
+  scale_color_viridis_d(option = "viridis", end = 0.8) +
+  facet_wrap(vars(town), ncol = 3) +
   base_theme +
   labs(
     title = "Price per sqm growth across sample towns",
