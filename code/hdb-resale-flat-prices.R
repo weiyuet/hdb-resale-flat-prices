@@ -46,7 +46,7 @@ mature_towns <- c(
   "TOA PAYOH"
 )
 
-## 3.2 Convert month to yearmon, calculate price per sqm and parse remaining lease into a decimal ----
+## 3.2 Clean up data types ----
 resale_flat_prices_clean <- resale_flat_prices_raw %>%
   mutate(
     month = as.yearmon(month, format = "%Y-%m"),
@@ -63,9 +63,12 @@ resale_flat_prices_clean <- resale_flat_prices_raw %>%
     lease_years = if_else(is.na(lease_years), 0, as.numeric(lease_years)),
     lease_months = str_extract(remaining_lease, "\\d+(?=\\s*months?)"),
     lease_months = if_else(is.na(lease_months), 0, as.numeric(lease_months)),
-    remaining_lease_numeric = lease_years + (lease_months / 12)
+    remaining_lease_numeric = lease_years + (lease_months / 12),
+    floor_lower = as.numeric(str_extract(storey_range, "^\\d+")),
+    floor_upper = as.numeric(str_extract(storey_range, "\\d+$")),
+    floor_mid = (floor_lower + floor_upper) / 2
   ) %>%
-  select(-lease_years, -lease_months)
+  select(-lease_years, -lease_months, -floor_lower, -floor_upper)
 
 ## 3.3 Prep geospatial data join ----
 hdb_to_ura_translation <- c(
@@ -126,9 +129,8 @@ shared_caption <- paste0(
 )
 
 # 5.0 Plotting Data ----
-## 5.1 By Town ----
+## 5.1 Price distributions by town ----
 plot_1 <- resale_flat_prices_clean %>%
-  filter(town != "CENTRAL AREA") %>%
   ggplot(aes(x = month, y = resale_price)) +
   geom_point(
     aes(color = resale_price >= 1e+06),
@@ -147,16 +149,16 @@ plot_1 <- resale_flat_prices_clean %>%
   geom_hline(yintercept = 1e+06, linetype = "dotted", color = "black") +
   date_scale +
   price_scale_m +
-  facet_wrap(~town) +
+  facet_wrap(vars(town)) +
   base_theme +
   labs(
-    title = "Million-dollar flats are not evenly distributed across towns",
+    title = "Million-dollar flats distributions by towns",
     x = NULL,
     y = NULL,
     caption = shared_caption
   )
 
-## 5.2 Multivariate Comparison (Time vs Price/Sqm vs Size vs Town) ----
+## 5.2 Multivariate comparison (Sqm growth) ----
 plot_2 <- resale_flat_prices_clean %>%
   filter(
     town %in%
@@ -190,7 +192,7 @@ plot_2 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.3 Lease Depreciation Impact ----
+## 5.3 Lease depreciation impact ----
 plot_3 <- resale_flat_prices_clean %>%
   ggplot(aes(x = remaining_lease_numeric, y = price_per_sqm)) +
   geom_point(color = "gray75", size = 0.3, alpha = 0.4) +
@@ -213,8 +215,48 @@ plot_3 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.4 Geospatial Map ----
-plot_4 <- ggplot(sg_map_clean) +
+## 5.4 Town premium ----
+plot_4 <- resale_flat_prices_clean %>% 
+  mutate(town = fct_reorder(town, price_per_sqm, .fun = median)) %>% 
+  ggplot(aes(x = town, y = price_per_sqm, fill = estate_type)) +
+  geom_violin(trim = TRUE, alpha = 0.6, color = "gray40", linewidth = 0.3) +
+  geom_boxplot(width = 0.15, outlier.shape = NA, alpha = 0.7, color = "black", lwd = 0.4) +
+  stat_summary(fun = median, geom = "point", shape = 21, size = 1.2, fill = "white", color = "black") +
+  coord_flip() +
+  scale_y_continuous(labels = label_dollar()) +
+  scale_fill_manual(values = c("Mature Estate" = "#2c3e50", "Non-mature Estate" = "#18bc9c")) +
+  base_theme +
+  theme(legend.position = "top") +
+  labs(
+    title = "HDB Town Premium Distribution Profile",
+    subtitle = "Price density by ascending median unit value",
+    x = NULL,
+    y = "Price per Sqm ($)",
+    fill = NULL,
+    caption = shared_caption
+  )
+
+## 5.5 Floor height premium ----
+plot_5 <- resale_flat_prices_clean %>% 
+  filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>% 
+  group_by(estate_type, flat_type, floor_mid) %>% 
+  summarise(median_price_sqm = median(price_per_sqm, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(x = floor_mid, y = median_price_sqm, color = flat_type)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  geom_line(linewidth = 0.8) +
+  facet_wrap(vars(estate_type)) +
+  scale_y_continuous(labels = label_dollar()) +
+  scale_color_viridis_d(option = "viridis", end = 0.8) +
+  base_theme +
+  labs(
+    title = "The Floor Height Premium Profile",
+    subtitle = "Median unit pricing evaluated across vertical storey ranges",
+    x = "Storey Level (Range Midpoint)", y = "Median Price per Sqm ($)",
+    color = "Flat Type", caption = shared_caption
+  )
+
+## 5.6 Geospatial Map ----
+plot_6 <- ggplot(sg_map_clean) +
   geom_sf(aes(fill = median_price_sqm), color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(
     option = "magma",
@@ -233,7 +275,7 @@ plot_4 <- ggplot(sg_map_clean) +
   ) +
   labs(
     title = "Geospatial Heatmap of HDB Resale Value",
-    subtitle = "Median price per sqm by planning area (Blank areas because HDB Town Names do not match URA Planning Area names)",
+    subtitle = "Median price per sqm by planning area (Blank areas because HDB Town names do not match URA Planning Area names)",
     fill = "Median Price/Sqm",
     caption = shared_caption
   )
@@ -269,8 +311,10 @@ table_image <- million_dollar_flat_summary %>%
 all_plots <- list(
   "town-absolute" = plot_1,
   "multivariate-sqm" = plot_2,
-  "lease_decay" = plot_3,
-  "geospatial_map" = plot_4
+  "lease-decay" = plot_3,
+  "town-premium" = plot_4,
+  "floor-premium" = plot_5,
+  "geospatial-map" = plot_6
 )
 
 iwalk(

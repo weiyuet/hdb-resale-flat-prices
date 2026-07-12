@@ -2,10 +2,10 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-11
+Updated: 2026-07-12
 
 Data sources:
-  - [`Singapore's Open Data Portal (data.gov.sg)`](https://data.gov.sg/)
+  - [`Open source data from public agencies in Singapore (data.gov.sg)`](https://data.gov.sg/)
   
   - [`HDB Flat Portal`](https://homes.hdb.gov.sg/home/landing)
 
@@ -15,7 +15,7 @@ This project was initially part of the `singapore-data` repository, but I have s
 Toa Payoh has the most number of million-dollar transactions.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flats-prices-summary-table.png)
 
-## Million-dollar flats by HDB towns
+## Million-dollar flats distribution by HDB towns
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-town-absolute.png)
 
 ## Per square-meter price trends across selected HDB towns
@@ -27,7 +27,7 @@ Resale prices in Mature Estates hold up better than in Non-mature Estates. As ex
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-lease_decay.png)
 
 ## Geo-spatial heatmap of per square-meter prices
-The HDB Town names and the URA Planning Area names do not match, resulting in the blank spaces. No surprise that the Downtown Core and Central areas have the highest per square-meter prices. The per square-meter prices in Punggol indicate the area is quite sought after.
+The gray gaps in the map occur because HDB uses general town names (Central Area, Kallang/Whampoa, Marine Parade etc), while the URA Master Plan divides the island into precise Planning Areas (Downtown Core, Rochor, Outram, Kallang etc). Some of these areas do not match exactly, resulting in the gray blank areas. No surprise that the Downtown Core and Central areas have the highest per square-meter prices. Among the towns that are furthest from the city center, Punggol has some of the most expensive per square meter prices.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-geospatial_map.png)
 
 End
