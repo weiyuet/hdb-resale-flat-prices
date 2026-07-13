@@ -29,6 +29,42 @@ For the questions, I had my own pre-conceived ideas on some of the answers, but 
 - [Floor Height Premium (Flats on higher floors vs flats on lower floors)](#floor-premium)
 - [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
 
+## Preview of Raw Data
+This is how the data format looks like straight out of the database.
+
+`resale_flat_prices_raw %>% tail(20) %>% knitr::kable(format = "markdown")`
+
+|month   |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price|
+|:-------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|
+|2026-04 |YISHUN |EXECUTIVE        |614   |YISHUN ST 61 |04 TO 06     |            142|Apartment        |                1987|60 years 01 month  |       820000|
+|2026-04 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|
+|2026-06 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|
+|2026-03 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|
+|2026-03 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|
+|2026-03 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            142|Apartment        |                1987|60 years 10 months |       980000|
+|2026-04 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|
+|2026-05 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|
+|2026-05 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|
+|2026-07 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|
+
+## Preview of Clean Data
+This is how it looks after some tidying up and prepping.
+
+`resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
+
+|month    |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price| price_per_sqm|estate_type       | remaining_lease_numeric| floor_mid|
+|:--------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|-------------:|:-----------------|-----------------------:|---------:|
+|Apr 2026 |YISHUN |EXECUTIVE        |614   |YISHUN ST 61 |04 TO 06     |            142|Apartment        |                1987|60 years 01 month  |       820000|      5774.648|Non-mature Estate |                60.08333|         5|
+|Apr 2026 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|      5845.070|Non-mature Estate |                60.66667|         8|
+|Jun 2026 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|      6962.963|Non-mature Estate |                57.58333|         5|
+|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333|        11|
+|Mar 2026 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|      6815.068|Non-mature Estate |                61.00000|        11|
+|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333|         8|
+|Apr 2026 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|      6620.690|Non-mature Estate |                60.50000|         2|
+|May 2026 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|      7371.641|Non-mature Estate |                60.75000|         8|
+|May 2026 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|      6829.268|Non-mature Estate |                60.66667|         5|
+|Jul 2026 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|      7300.613|Non-mature Estate |                60.58333|         8|
+
 ## Summary of Million-dollar Transactions
 Resale flat sellers in Toa Payoh have done well as it has the most number of million-dollar transactions.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flats-prices-summary-table.png)
@@ -51,7 +87,7 @@ People are willing to pay a substantial premium for a flat in the Downtown Core/
 ## Floor Premium
 Buyers are usually willing to pay more for a flat at a higher floor. However, the data shows that the floor premium is highly dependent on location, rather than a fixed premium across Singapore. Buyers are much more willing to pay for a flat at a higher floor especially if it's in a Mature Estate.
 
-The confounding factor for the floor premium is that older HDBs were mostly capped at 12 storeys, while the modern HDBs are routinely 25 storeys or higher. Currently the tallest HDB development is Pinnacle@Duxton at 50 storeys. It will soon be eclipsed by a [60-storey BTO project at Pearl's Hill, Chinatown.](https://www.straitstimes.com/singapore/politics/60-storey-bto-project-to-be-built-in-pearls-hill-hdb-to-construct-taller-flats-where-possible)
+The confounding factor for the floor premium is that older HDBs were mostly capped at 12 storeys, while the modern HDBs are routinely 25 storeys or higher. Currently the tallest HDB development is Pinnacle@Duxton at 50 storeys. It will soon be eclipsed by a [`60-storey BTO project at Pearl's Hill, Chinatown`.](https://www.straitstimes.com/singapore/politics/60-storey-bto-project-to-be-built-in-pearls-hill-hdb-to-construct-taller-flats-where-possible)
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-floor-premium.png)
 
 ## Geo-spatial Heatmap of per Square-meter Prices
