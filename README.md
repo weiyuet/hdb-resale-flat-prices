@@ -50,6 +50,8 @@ People are willing to pay a substantial premium for a flat in the Downtown Core/
 
 ## Floor Premium
 Buyers are usually willing to pay more for a flat at a higher floor. However, the data shows that the floor premium is highly dependent on location, rather than a fixed premium across Singapore. Buyers are much more willing to pay for a flat at a higher floor especially if it's in a Mature Estate.
+
+The confounding factor for the floor premium is that older HDBs were mostly capped at 12 storeys, while the modern HDBs are routinely 25 storeys or higher. Currently the tallest HDB development is Pinnacle@Duxton at 50 storeys. It will soon be eclipsed by a [60-storey BTO project at Pearl's Hill, Chinatown.](https://www.straitstimes.com/singapore/politics/60-storey-bto-project-to-be-built-in-pearls-hill-hdb-to-construct-taller-flats-where-possible)
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-floor-premium.png)
 
 ## Geo-spatial Heatmap of per Square-meter Prices
