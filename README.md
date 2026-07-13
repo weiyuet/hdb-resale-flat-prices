@@ -17,7 +17,7 @@ I started this project to answer some questions I had about the HDB Resale Flat 
   - How much more are buyers willing to pay for a flat on a higher floor?
   - How much effect does lease decay have on the resale price?
 
-As much as possible, I tried to put aside my own pre-conceived ideas, and find insights from the data.
+For the questions, I had my own pre-conceived ideas on some of the answers, but I wanted to see what the data will reveal, and also learn some insights that I did not anticipate.
 
 ## Quick Navigation
 
@@ -25,9 +25,9 @@ As much as possible, I tried to put aside my own pre-conceived ideas, and find i
 - [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
 - [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
 - [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
-- [Town Premium](#town-premium)
-- [Floor Premium](#floor-premium)
-- [Geo-spatial Heatmap](#geo-spatial-heatmap-of-per-square-meter-prices)
+- [Town Premium (Downtown Core areas vs fringe areas)](#town-premium)
+- [Floor Height Premium (Flats on higher floors vs flats on lower floors)](#floor-premium)
+- [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
 
 ## Summary of Million-dollar Transactions
 Resale flat sellers in Toa Payoh have done well as it has the most number of million-dollar transactions.
