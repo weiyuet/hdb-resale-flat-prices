@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-13
+Updated: 2026-07-14
 
 Data sources:
   - [`Open source data from public agencies in Singapore (data.gov.sg)`](https://data.gov.sg/)
@@ -10,6 +10,23 @@ Data sources:
   - [`HDB Flat Portal`](https://homes.hdb.gov.sg/home/landing)
 
 This project was initially part of the `singapore-data` repository, but I have since created a standalone repository for it because of the interest and attention on this topic.
+
+## Quick Navigation
+
+- [Background & Project Motivation](#background--project-motivation)
+- [Data Preview](#data-preview)
+  - [Raw Data](#raw-data)
+  - [Prepped & Clean Data](#prepped--clean-data)
+- [Summary of Million-dollar Resale Flat Transactions](#summary-of-million-dollar-transactions)
+- [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
+- [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
+- [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
+- [Town Premium (Downtown Core areas vs fringe areas)](#town-premium)
+- [Floor Height Premium (Flats on higher floors vs flats on lower floors)](#floor-premium)
+- [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
+
+## Background & Project Motivation
+The HDB resale flat market has been running hot with ever increasing numbers of resale flats changing hands at a cost of over SDG1 Million.
 
 I started this project to answer some questions I had about the HDB Resale Flat market.
   - Are prices of resale flats skyrocketing everywhere? Or just in the highly sought after locations?
@@ -19,20 +36,11 @@ I started this project to answer some questions I had about the HDB Resale Flat 
 
 For the questions, I had my own pre-conceived ideas on some of the answers, but I wanted to see what the data will reveal, and also learn some insights that I did not anticipate.
 
-## Quick Navigation
-
-- [Summary of Million-dollar Resale Flat Transactions](#summary-of-million-dollar-transactions)
-- [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
-- [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
-- [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
-- [Town Premium (Downtown Core areas vs fringe areas)](#town-premium)
-- [Floor Height Premium (Flats on higher floors vs flats on lower floors)](#floor-premium)
-- [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
-
-## Preview of Raw Data
+## Data Preview
+### Raw Data
 This is how the data format looks like straight out of the database.
 
-`resale_flat_prices_raw %>% tail(20) %>% knitr::kable(format = "markdown")`
+`resale_flat_prices_raw %>% tail(10) %>% knitr::kable(format = "markdown")`
 
 |month   |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price|
 |:-------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|
@@ -47,7 +55,7 @@ This is how the data format looks like straight out of the database.
 |2026-05 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|
 |2026-07 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|
 
-## Preview of Clean Data
+### Prepped & Clean Data
 This is how it looks after some tidying up and prepping.
 
 `resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
