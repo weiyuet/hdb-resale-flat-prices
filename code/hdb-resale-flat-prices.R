@@ -64,6 +64,20 @@ resale_flat_prices_clean <- resale_flat_prices_raw %>%
     lease_months = str_extract(remaining_lease, "\\d+(?=\\s*months?)"),
     lease_months = if_else(is.na(lease_months), 0, as.numeric(lease_months)),
     remaining_lease_numeric = lease_years + (lease_months / 12),
+    flat_age = 99 - remaining_lease_numeric,
+    age_cohort = case_when(
+      flat_age < 15 ~ "New (<15 Years Old)",
+      flat_age >= 15 & flat_age <= 50 ~ "Mid-Life (15-50 Years Old)",
+      flat_age > 50 ~ "Legacy (>50 Years Old)"
+    ),
+    age_cohort = factor(
+      age_cohort,
+      levels = c(
+        "New (<15 Years Old)",
+        "Mid-Life (15-50 Years Old)",
+        "Legacy (>50 Years Old)"
+      )
+    ),
     floor_lower = as.numeric(str_extract(storey_range, "^\\d+")),
     floor_upper = as.numeric(str_extract(storey_range, "\\d+$")),
     floor_mid = (floor_lower + floor_upper) / 2
@@ -166,10 +180,13 @@ plot_2 <- resale_flat_prices_clean %>%
       c(
         "BISHAN",
         "BUKIT MERAH",
+        "BUKIT TIMAH",
+        "CENTRAL AREA",
         "JURONG WEST",
         "MARINE PARADE",
         "TAMPINES",
-        "TOA PAYOH"
+        "TOA PAYOH",
+        "PUNGGOL"
       )
   ) %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
@@ -255,7 +272,7 @@ plot_4 <- resale_flat_prices_clean %>%
 ## 5.5 Floor height premium ----
 plot_5 <- resale_flat_prices_clean %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
-  group_by(estate_type, flat_type, floor_mid) %>%
+  group_by(age_cohort, flat_type, floor_mid) %>%
   summarise(
     median_price_sqm = median(price_per_sqm, na.rm = TRUE),
     .groups = "drop"
@@ -263,21 +280,58 @@ plot_5 <- resale_flat_prices_clean %>%
   ggplot(aes(x = floor_mid, y = median_price_sqm, color = flat_type)) +
   geom_point(alpha = 0.6, size = 1.5) +
   geom_line(linewidth = 0.8) +
-  facet_wrap(vars(estate_type)) +
+  facet_wrap(vars(age_cohort)) +
   scale_y_continuous(labels = label_dollar()) +
   scale_color_viridis_d(option = "viridis", end = 0.8) +
   base_theme +
   labs(
-    title = "The Floor Height Premium Profile",
-    subtitle = "Median unit pricing evaluated across vertical storey ranges",
+    title = "The Floor Height Premium (Stratified by Building Age)",
+    subtitle = "Unit pricing evaluated across storey levels within comparable lease age groups",
     x = "Storey Level (Range Midpoint)",
     y = "Median Price per Sqm ($)",
     color = "Flat Type",
     caption = shared_caption
   )
 
-## 5.6 Geospatial Map ----
-plot_6 <- ggplot(sg_map_clean) +
+## 5.6 HDB resale supply wave vs price impact ----
+mop_supply_data <- resale_flat_prices_clean %>%
+  mutate(year = as.numeric(format(month, "%Y"))) %>%
+  filter(flat_age >= 5 & flat_age <= 8) %>%
+  group_by(town, year) %>%
+  summarise(
+    mop_resale_volume = n(),
+    median_price_sqm = median(price_per_sqm, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  filter(town %in% c("PUNGGOL", "SENGKANG", "WOODLANDS", "TAMPINES", "YISHUN"))
+
+plot_6 <- ggplot(
+  mop_supply_data,
+  aes(x = mop_resale_volume, y = median_price_sqm)
+) +
+  geom_point(aes(color = as.factor(year)), size = 2, alpha = 0.8) +
+  geom_smooth(
+    method = "lm",
+    color = "black",
+    linetype = "dashed",
+    se = FALSE,
+    linewidth = 0.5
+  ) +
+  facet_wrap(vars(town), scales = "free") +
+  scale_y_continuous(labels = label_dollar()) +
+  scale_color_brewer(palette = "Set1") +
+  base_theme +
+  labs(
+    title = "Active Resale Supply Volume vs. Localized Valuations",
+    subtitle = "Annual volume of freshly MOPed (5-8 Yrs) units transacted vs. Median Price per Sqm",
+    x = "Annual Transacted Volume of MOPed Units (Active Supply)",
+    y = "Median Price per Sqm ($)",
+    color = "Calendar Year",
+    caption = shared_caption
+  )
+
+## 5.7 Geospatial map ----
+plot_7 <- ggplot(sg_map_clean) +
   geom_sf(aes(fill = median_price_sqm), color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(
     option = "magma",
@@ -335,7 +389,8 @@ all_plots <- list(
   "lease-decay" = plot_3,
   "town-premium" = plot_4,
   "floor-premium" = plot_5,
-  "geospatial-map" = plot_6
+  "supply-demand" = plot_6,
+  "geospatial-map" = plot_7
 )
 
 iwalk(

@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-14
+Updated: 2026-07-15
 
 Data sources:
   - [`Open source data from public agencies in Singapore (data.gov.sg)`](https://data.gov.sg/)
@@ -38,7 +38,7 @@ For the questions, I had my own pre-conceived ideas on some of the answers, but 
 
 ## Data Preview
 ### Raw Data
-This is how the data format looks like straight out of the database.
+This is how the data format looks like as provided by the HDB. The raw dataset does not meet "tidy" data principles (Wickham, 2014), and is at most, semi-structured.
 
 `resale_flat_prices_raw %>% tail(10) %>% knitr::kable(format = "markdown")`
 
@@ -56,22 +56,22 @@ This is how the data format looks like straight out of the database.
 |2026-07 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|
 
 ### Prepped & Clean Data
-This is how it looks after some tidying up and prepping.
+This is how it looks after some tidying up and prepping. Dates, lease values and storey numbers are given their correct data type, and other needed data like price-per-square-meter is calculated.
 
 `resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
 
-|month    |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price| price_per_sqm|estate_type       | remaining_lease_numeric| floor_mid|
-|:--------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|-------------:|:-----------------|-----------------------:|---------:|
-|Apr 2026 |YISHUN |EXECUTIVE        |614   |YISHUN ST 61 |04 TO 06     |            142|Apartment        |                1987|60 years 01 month  |       820000|      5774.648|Non-mature Estate |                60.08333|         5|
-|Apr 2026 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|      5845.070|Non-mature Estate |                60.66667|         8|
-|Jun 2026 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|      6962.963|Non-mature Estate |                57.58333|         5|
-|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333|        11|
-|Mar 2026 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|      6815.068|Non-mature Estate |                61.00000|        11|
-|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333|         8|
-|Apr 2026 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|      6620.690|Non-mature Estate |                60.50000|         2|
-|May 2026 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|      7371.641|Non-mature Estate |                60.75000|         8|
-|May 2026 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|      6829.268|Non-mature Estate |                60.66667|         5|
-|Jul 2026 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|      7300.613|Non-mature Estate |                60.58333|         8|
+|month    |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price| price_per_sqm|estate_type       | remaining_lease_numeric| flat_age|age_cohort                 | floor_mid|
+|:--------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|-------------:|:-----------------|-----------------------:|--------:|:--------------------------|---------:|
+|Apr 2026 |YISHUN |EXECUTIVE        |614   |YISHUN ST 61 |04 TO 06     |            142|Apartment        |                1987|60 years 01 month  |       820000|      5774.648|Non-mature Estate |                60.08333| 38.91667|Mid-Life (15-50 Years Old) |         5|
+|Apr 2026 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|      5845.070|Non-mature Estate |                60.66667| 38.33333|Mid-Life (15-50 Years Old) |         8|
+|Jun 2026 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|      6962.963|Non-mature Estate |                57.58333| 41.41667|Mid-Life (15-50 Years Old) |         5|
+|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333| 38.16667|Mid-Life (15-50 Years Old) |        11|
+|Mar 2026 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|      6815.068|Non-mature Estate |                61.00000| 38.00000|Mid-Life (15-50 Years Old) |        11|
+|Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333| 38.16667|Mid-Life (15-50 Years Old) |         8|
+|Apr 2026 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|      6620.690|Non-mature Estate |                60.50000| 38.50000|Mid-Life (15-50 Years Old) |         2|
+|May 2026 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|      7371.641|Non-mature Estate |                60.75000| 38.25000|Mid-Life (15-50 Years Old) |         8|
+|May 2026 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|      6829.268|Non-mature Estate |                60.66667| 38.33333|Mid-Life (15-50 Years Old) |         5|
+|Jul 2026 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|      7300.613|Non-mature Estate |                60.58333| 38.41667|Mid-Life (15-50 Years Old) |         8|
 
 ## Summary of Million-dollar Transactions
 Resale flat sellers in Toa Payoh have done well as it has the most number of million-dollar transactions.
