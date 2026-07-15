@@ -296,7 +296,7 @@ plot_5 <- resale_flat_prices_clean %>%
 ## 5.6 HDB resale supply wave vs price impact ----
 mop_supply_data <- resale_flat_prices_clean %>%
   mutate(year = as.numeric(format(month, "%Y"))) %>%
-  filter(flat_age >= 5 & flat_age <= 8) %>%
+  filter(flat_age >= 5 & flat_age <= 10) %>%
   group_by(town, year) %>%
   summarise(
     mop_resale_volume = n(),
