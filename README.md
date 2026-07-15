@@ -34,7 +34,7 @@ I started this project to answer some questions I had about the HDB Resale Flat 
   - How much more are buyers willing to pay for a flat on a higher floor?
   - How much effect does lease decay have on the resale price?
 
-For the questions, I had my own pre-conceived ideas on some of the answers, but I wanted to see what the data will reveal, and also learn some insights that I did not anticipate.
+For the questions, because of my own lived experience, I have my own pre-conceived ideas on some of the answers, but I wanted to see what the data will reveal, and also learn some insights that I did not anticipate.
 
 ## Data Preview
 ### Raw Data
@@ -56,7 +56,7 @@ This is how the data format looks like as provided by the HDB. The raw dataset d
 |2026-07 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|
 
 ### Prepped & Clean Data
-This is how it looks after some tidying up and prepping. Dates, lease values and storey numbers are given their correct data type, and other needed data like price-per-square-meter is calculated.
+This is how it looks after some tidying up and prepping. Dates, lease values and storey numbers are given their correct data type, and other needed data like price-per-square-meter are calculated.
 
 `resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
 
@@ -89,7 +89,7 @@ Generally, as the lease runs down, the resale prices fall, however resale prices
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-lease-decay.png)
 
 ## Town Premium 
-People are willing to pay a substantial premium for a flat in the Downtown Core/Central Area. Highly coveted areas like the Central Area, Queenstown and Bukit Merah show a long tail, indicating an open-ended premium ceiling. Non-mature towns like Choa Chu Kang and Jurong West tend to have a more tightly clustered plot indicating less variance in prices.
+The location of a flat is important. People are willing to pay a substantial premium for a flat in the Downtown Core/Central Area. Highly coveted areas like the Central Area, Queenstown and Bukit Merah show a long tail, indicating an open-ended premium ceiling. Non-mature towns like Choa Chu Kang and Jurong West tend to have a more tightly clustered plot indicating less variance in prices.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-town-premium.png)
 
 ## Floor Premium
