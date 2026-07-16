@@ -2,10 +2,10 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-15
+Updated: 2026-07-17
 
 Data sources:
-  - [`Open source data from public agencies in Singapore (data.gov.sg)`](https://data.gov.sg/)
+  - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
   
   - [`HDB Flat Portal`](https://homes.hdb.gov.sg/home/landing)
 
