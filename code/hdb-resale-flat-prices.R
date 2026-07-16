@@ -293,7 +293,7 @@ plot_5 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.6 HDB resale supply wave vs price impact ----
+## 5.6 HDB mop resale supply wave vs price impact ----
 mop_supply_data <- resale_flat_prices_clean %>%
   mutate(year = as.numeric(format(month, "%Y"))) %>%
   filter(flat_age >= 5 & flat_age <= 10) %>%
@@ -319,11 +319,11 @@ plot_6 <- ggplot(
   ) +
   facet_wrap(vars(town), scales = "free") +
   scale_y_continuous(labels = label_dollar()) +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_viridis_d(option = "plasma", end = 0.85) +
   base_theme +
   labs(
     title = "Active Resale Supply Volume vs. Localized Valuations",
-    subtitle = "Annual volume of freshly MOPed (5-8 Yrs) units transacted vs. Median Price per Sqm",
+    subtitle = "Annual volume of freshly MOPed (5-10 Yrs) units transacted vs. Median Price per Sqm",
     x = "Annual Transacted Volume of MOPed Units (Active Supply)",
     y = "Median Price per Sqm ($)",
     color = "Calendar Year",
