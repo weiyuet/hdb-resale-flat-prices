@@ -84,6 +84,8 @@ resale_flat_prices_clean <- resale_flat_prices_raw %>%
   ) %>%
   select(-lease_years, -lease_months, -floor_lower, -floor_upper)
 
+print(resale_flat_prices_clean)
+
 ## 3.3 Prep geospatial data join ----
 hdb_to_ura_translation <- c(
   "KALLANG/WHAMPOA" = "KALLANG",
@@ -144,8 +146,31 @@ shared_caption <- paste0(
 )
 
 # 5.0 Plotting Data ----
-## 5.1 Price distributions by town ----
-plot_1 <- resale_flat_prices_clean %>%
+## 5.1 Million dollar flat trends ----
+million_dollar_yearly <- resale_flat_prices_clean %>%
+  filter(resale_price >= 1e+06) %>%
+  mutate(year = as.integer(format(month, "%Y"))) %>%
+  count(year, name = "volume")
+
+print(million_dollar_yearly)
+
+plot_1 <- million_dollar_yearly %>%
+  ggplot(aes(x = year, y = volume)) +
+  geom_col(fill = "coral1", width = 0.7, alpha = 0.9) +
+  geom_text(aes(label = volume), vjust = -0.5, size = 3.5, fontface = "bold") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  scale_x_continuous(breaks = unique(million_dollar_yearly$year)) +
+  base_theme +
+  labs(
+    title = "Trajectory of Million-Dollar HDB Transactions",
+    subtitle = "Total volume of flats transacted at or above $1M per calendar year",
+    x = NULL,
+    y = "Number of Transactions",
+    caption = shared_caption
+  )
+
+## 5.2 Price distributions by town ----
+plot_2 <- resale_flat_prices_clean %>%
   ggplot(aes(x = month, y = resale_price)) +
   geom_point(
     aes(color = resale_price >= 1e+06),
@@ -173,8 +198,8 @@ plot_1 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.2 Multivariate comparison (Sqm growth) ----
-plot_2 <- resale_flat_prices_clean %>%
+## 5.3 Multivariate comparison (Sqm growth) ----
+plot_3 <- resale_flat_prices_clean %>%
   filter(
     town %in%
       c(
@@ -211,8 +236,8 @@ plot_2 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.3 Lease depreciation impact ----
-plot_3 <- resale_flat_prices_clean %>%
+## 5.4 Lease depreciation impact ----
+plot_4 <- resale_flat_prices_clean %>%
   ggplot(aes(x = remaining_lease_numeric, y = price_per_sqm)) +
   geom_point(color = "gray75", size = 0.3, alpha = 0.4) +
   geom_smooth(
@@ -234,8 +259,8 @@ plot_3 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.4 Town premium ----
-plot_4 <- resale_flat_prices_clean %>%
+## 5.5 Town premium ----
+plot_5 <- resale_flat_prices_clean %>%
   mutate(town = fct_reorder(town, price_per_sqm, .fun = median)) %>%
   ggplot(aes(x = town, y = price_per_sqm, fill = estate_type)) +
   geom_violin(trim = TRUE, alpha = 0.6, color = "gray40", linewidth = 0.3) +
@@ -269,8 +294,8 @@ plot_4 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.5 Floor height premium ----
-plot_5 <- resale_flat_prices_clean %>%
+## 5.6 Floor height premium ----
+plot_6 <- resale_flat_prices_clean %>%
   filter(flat_type %in% c("3 ROOM", "4 ROOM", "5 ROOM")) %>%
   group_by(age_cohort, flat_type, floor_mid) %>%
   summarise(
@@ -293,7 +318,7 @@ plot_5 <- resale_flat_prices_clean %>%
     caption = shared_caption
   )
 
-## 5.6 HDB mop resale supply wave vs price impact ----
+## 5.7 HDB mop resale supply wave vs price impact ----
 mop_supply_data <- resale_flat_prices_clean %>%
   mutate(year = as.numeric(format(month, "%Y"))) %>%
   filter(flat_age >= 5 & flat_age <= 10) %>%
@@ -305,7 +330,9 @@ mop_supply_data <- resale_flat_prices_clean %>%
   ) %>%
   filter(town %in% c("PUNGGOL", "SENGKANG", "WOODLANDS", "TAMPINES", "YISHUN"))
 
-plot_6 <- ggplot(
+print(mop_supply_data)
+
+plot_7 <- ggplot(
   mop_supply_data,
   aes(x = mop_resale_volume, y = median_price_sqm)
 ) +
@@ -330,8 +357,8 @@ plot_6 <- ggplot(
     caption = shared_caption
   )
 
-## 5.7 Geospatial map ----
-plot_7 <- ggplot(sg_map_clean) +
+## 5.8 Geospatial map ----
+plot_8 <- ggplot(sg_map_clean) +
   geom_sf(aes(fill = median_price_sqm), color = "white", linewidth = 0.2) +
   scale_fill_viridis_c(
     option = "magma",
@@ -384,13 +411,14 @@ table_image <- million_dollar_flat_summary %>%
 # 7.0 Export and Save Images ----
 # Save plots
 all_plots <- list(
-  "town-absolute" = plot_1,
-  "multivariate-sqm" = plot_2,
-  "lease-decay" = plot_3,
-  "town-premium" = plot_4,
-  "floor-premium" = plot_5,
-  "supply-demand" = plot_6,
-  "geospatial-map" = plot_7
+  "million-dollar-yearly-trends" = plot_1,
+  "town-absolute" = plot_2,
+  "multivariate-sqm" = plot_3,
+  "lease-decay" = plot_4,
+  "town-premium" = plot_5,
+  "floor-premium" = plot_6,
+  "supply-demand" = plot_7,
+  "geospatial-map" = plot_8
 )
 
 iwalk(
