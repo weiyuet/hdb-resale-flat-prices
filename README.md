@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-27
+Updated: 2026-07-31
 
 Data sources:
   - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
@@ -18,6 +18,7 @@ This project was initially part of the `singapore-data` repository, but I have s
   - [Raw Data](#raw-data)
   - [Prepped & Clean Data](#prepped--clean-data)
 - [Summary of Million-dollar Resale Flat Transactions](#summary-of-million-dollar-transactions)
+- [Yearly Trends of Transactions at or Exceeding the Million-dollar Threshold](#yearly-trends-of-transactions-at-or-exceeding-the-million-dollar-threshold)
 - [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
 - [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
 - [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
@@ -77,11 +78,15 @@ This is how it looks after some tidying up and prepping. Dates, lease values and
 Resale flat sellers in Toa Payoh have done well as it has the most number of million-dollar transactions.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flats-prices-summary-table.png)
 
+## Yearly Trends of Transactions at or Exceeding the Million-dollar Threshold
+The number of flats transacting at or above SGD$1M accelerrated from 2021 (note that the dataset only goes back to 2017).
+![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-million-dollar-yearly-trends.png)
+
 ## Million-dollar Flat Distribution Across HDB Towns
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-town-absolute.png)
 
 ## Per Square-meter Price Trends Across Selected Sample HDB Towns
-A 5-room flat will be more expensive than a 3-room flat. To accurately see if resale prices are skyrocketing everywhere, I use price per square-meter. Comparing price per square-meter gives a fairer comparison between flat types and locations. A surprising find is the price per square-meter does not differ too much between 3, 4, and 5 room flats in Tampines and Jurong West.
+A 5-room flat will be more expensive than a 3-room flat. To accurately see if resale prices are skyrocketing everywhere, I use price per square-meter. Comparing price per square-meter gives a fairer comparison between flat types and locations.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-multivariate-sqm.png)
 
 ## Effect of Lease Decay on Resale Flat Prices
