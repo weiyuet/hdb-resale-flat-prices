@@ -9,6 +9,9 @@ library(scales)
 library(zoo)
 library(flextable)
 library(sf)
+library(brms)
+library(tidybayes)
+library(modelr)
 
 # 2.0 Load Data ----
 ## 2.1 Clean up files and rename new downloaded files ----
@@ -224,7 +227,7 @@ plot_3 <- resale_flat_prices_clean %>%
     formula = y ~ s(x, k = 5)
   ) +
   date_scale +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
   scale_color_viridis_d(option = "viridis", end = 0.8) +
   facet_wrap(vars(town), ncol = 3) +
   base_theme +
@@ -249,12 +252,11 @@ plot_4 <- resale_flat_prices_clean %>%
   ) +
   facet_wrap(vars(estate_type)) +
   scale_x_reverse(limits = c(99, 35), breaks = seq(100, 40, -10)) +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
   base_theme +
   labs(
     title = "How does an aging HDB lease affect its value?",
-    subtitle = "Price per sqm vs. Remaining lease (years), stratified by Estate Type",
-    x = "Remaining Lease (Years left)",
+    x = "Remaining Lease (Years)",
     y = "Price per Sqm ($)",
     caption = shared_caption
   )
@@ -280,7 +282,7 @@ plot_5 <- resale_flat_prices_clean %>%
     color = "black"
   ) +
   coord_flip() +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
   scale_fill_manual(
     values = c("Mature Estate" = "#2c3e50", "Non-mature Estate" = "#18bc9c")
   ) +
@@ -306,7 +308,7 @@ plot_6 <- resale_flat_prices_clean %>%
   geom_point(alpha = 0.6, size = 1.5) +
   geom_line(linewidth = 0.8) +
   facet_wrap(vars(age_cohort)) +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
   scale_color_viridis_d(option = "viridis", end = 0.8) +
   base_theme +
   labs(
@@ -345,7 +347,7 @@ plot_7 <- ggplot(
     linewidth = 0.5
   ) +
   facet_wrap(vars(town), scales = "free") +
-  scale_y_continuous(labels = label_dollar()) +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
   scale_color_viridis_d(option = "plasma", end = 0.85) +
   base_theme +
   labs(
@@ -393,6 +395,8 @@ million_dollar_flat_summary <- resale_flat_prices_clean %>%
   ) %>%
   arrange(desc(`Total Million-Dollar Flats`))
 
+print(million_dollar_flat_summary)
+
 # Format summary table
 table_image <- million_dollar_flat_summary %>%
   flextable() %>%
@@ -408,7 +412,45 @@ table_image <- million_dollar_flat_summary %>%
   bg(bg = "white", part = "all") %>%
   autofit()
 
-# 7.0 Export and Save Images ----
+# 7.0 Bayesian Inference - Impact of lease decay on price per sqm ----
+## 7.2 Fit bayesian regression model ----
+
+sample_data <- resale_flat_prices_clean %>%
+  slice_sample(n = 2000)
+
+lease_decay_model_brms <- brm(
+  formula = price_per_sqm ~ remaining_lease_numeric,
+  data = sample_data,
+  family = gaussian(),
+  chains = 4,
+  iter = 2000,
+  cores = 4,
+  seed = 42
+)
+
+## 7.3 Extract posterior draws and visualize with tidybayes ----
+plot_9 <- sample_data %>%
+  data_grid(
+    remaining_lease_numeric = seq_range(remaining_lease_numeric, n = 100)
+  ) %>%
+  add_epred_draws(lease_decay_model_brms) %>%
+  ggplot(aes(x = remaining_lease_numeric, y = price_per_sqm)) +
+  stat_lineribbon(aes(y = .epred), alpha = 0.8) +
+  scale_fill_brewer(palette = "Blues") +
+  geom_point(data = sample_data, alpha = 0.2, size = 0.5, color = "gray40") +
+  scale_x_reverse() +
+  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  base_theme +
+  labs(
+    title = "Bayesian Inference: Impact of Lease Decay on Valuation",
+    subtitle = "Posterior median and 50%, 80%, 95% credible intervals",
+    x = "Remaining Lease (Years)",
+    y = "Expected Price per Sqm ($)",
+    fill = "Credible Interval",
+    caption = shared_caption
+  )
+
+# 8.0 Export and Save Images ----
 # Save plots
 all_plots <- list(
   "million-dollar-yearly-trends" = plot_1,
@@ -418,7 +460,8 @@ all_plots <- list(
   "town-premium" = plot_5,
   "floor-premium" = plot_6,
   "supply-demand" = plot_7,
-  "geospatial-map" = plot_8
+  "geospatial-map" = plot_8,
+  "bayes-lease-decay" = plot_9
 )
 
 iwalk(
