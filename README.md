@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-07-31
+Updated: 2026-08-01
 
 Data sources:
   - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
@@ -27,9 +27,10 @@ This project was initially part of the `singapore-data` repository, but I have s
 - [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
 
 ## Background & Project Motivation
-The HDB resale flat market has been running hot with ever increasing numbers of resale flats changing hands at a cost of over SGD1 Million.
+The HDB resale flat market has been running hot with increasing numbers of resale flats changing hands at a cost of over SGD$1M. Beyond the headlines, I think there are increasing concerns about housing affordability and the rising cost of living.
 
 I started this project to answer some questions I had about the HDB Resale Flat market.
+  - When did the trend of SGD$1M flats begin, and how fast is the trend accelerating?
   - Are prices of resale flats skyrocketing everywhere? Or just in the highly sought after locations?
   - How much is the town premium between a Mature Estate compared to a Non-mature estate?
   - How much more are buyers willing to pay for a flat on a higher floor?
