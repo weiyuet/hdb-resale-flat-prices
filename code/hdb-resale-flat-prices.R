@@ -161,14 +161,17 @@ plot_1 <- million_dollar_yearly %>%
   ggplot(aes(x = year, y = volume)) +
   geom_col(fill = "coral1", width = 0.7, alpha = 0.9) +
   geom_text(aes(label = volume), vjust = -0.5, size = 3.5, fontface = "bold") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  scale_y_continuous(
+    labels = label_number(),
+    expand = expansion(mult = c(0, 0.15))
+  ) +
   scale_x_continuous(breaks = unique(million_dollar_yearly$year)) +
   base_theme +
   labs(
     title = "Trajectory of Million-Dollar HDB Transactions",
-    subtitle = "Total volume of flats transacted at or above $1M per calendar year",
+    subtitle = "Total number of flats transacted at or above $1M per calendar year",
     x = NULL,
-    y = "Number of Transactions",
+    y = NULL,
     caption = shared_caption
   )
 
@@ -227,7 +230,7 @@ plot_3 <- resale_flat_prices_clean %>%
     formula = y ~ s(x, k = 5)
   ) +
   date_scale +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   scale_color_viridis_d(option = "viridis", end = 0.8) +
   facet_wrap(vars(town), ncol = 3) +
   base_theme +
@@ -252,7 +255,7 @@ plot_4 <- resale_flat_prices_clean %>%
   ) +
   facet_wrap(vars(estate_type)) +
   scale_x_reverse(limits = c(99, 35), breaks = seq(100, 40, -10)) +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   base_theme +
   labs(
     title = "How does an aging HDB lease affect its value?",
@@ -282,7 +285,7 @@ plot_5 <- resale_flat_prices_clean %>%
     color = "black"
   ) +
   coord_flip() +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   scale_fill_manual(
     values = c("Mature Estate" = "#2c3e50", "Non-mature Estate" = "#18bc9c")
   ) +
@@ -308,7 +311,7 @@ plot_6 <- resale_flat_prices_clean %>%
   geom_point(alpha = 0.6, size = 1.5) +
   geom_line(linewidth = 0.8) +
   facet_wrap(vars(age_cohort)) +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   scale_color_viridis_d(option = "viridis", end = 0.8) +
   base_theme +
   labs(
@@ -347,7 +350,7 @@ plot_7 <- ggplot(
     linewidth = 0.5
   ) +
   facet_wrap(vars(town), scales = "free") +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   scale_color_viridis_d(option = "plasma", end = 0.85) +
   base_theme +
   labs(
@@ -365,7 +368,7 @@ plot_8 <- ggplot(sg_map_clean) +
   scale_fill_viridis_c(
     option = "magma",
     direction = -1,
-    labels = label_dollar(),
+    labels = label_number(),
     na.value = "gray95"
   ) +
   theme_void(base_size = 11) +
@@ -380,12 +383,12 @@ plot_8 <- ggplot(sg_map_clean) +
   labs(
     title = "Geospatial Heatmap of HDB Resale Value",
     subtitle = "Median price per sqm by planning area (Blank areas because HDB Town names do not match URA Planning Area names)",
-    fill = "Median Price/Sqm",
+    fill = "Median Price per Sqm ($)",
     caption = shared_caption
   )
 
 # 6.0 Summary Table ----
-# Compute total and highest transacted price for million-dollar transactions
+## 6.1 Compute total and highest transacted price for million-dollar transactions ----
 million_dollar_flat_summary <- resale_flat_prices_clean %>%
   filter(resale_price >= 1e+06) %>%
   group_by(Town = town) %>%
@@ -397,7 +400,7 @@ million_dollar_flat_summary <- resale_flat_prices_clean %>%
 
 print(million_dollar_flat_summary)
 
-# Format summary table
+## 6.2 Format summary table ----
 table_image <- million_dollar_flat_summary %>%
   flextable() %>%
   theme_vanilla() %>%
@@ -414,7 +417,6 @@ table_image <- million_dollar_flat_summary %>%
 
 # 7.0 Bayesian Inference - Impact of lease decay on price per sqm ----
 ## 7.2 Fit bayesian regression model ----
-
 sample_data <- resale_flat_prices_clean %>%
   slice_sample(n = 2000)
 
@@ -439,7 +441,7 @@ plot_9 <- sample_data %>%
   scale_fill_brewer(palette = "Blues") +
   geom_point(data = sample_data, alpha = 0.2, size = 0.5, color = "gray40") +
   scale_x_reverse() +
-  scale_y_continuous(labels = label_number(big.mark = ",")) +
+  scale_y_continuous(labels = label_number()) +
   base_theme +
   labs(
     title = "Bayesian Inference: Impact of Lease Decay on Valuation",
@@ -451,7 +453,7 @@ plot_9 <- sample_data %>%
   )
 
 # 8.0 Export and Save Images ----
-# Save plots
+## 8.1 Save plots ----
 all_plots <- list(
   "million-dollar-yearly-trends" = plot_1,
   "town-absolute" = plot_2,
@@ -464,6 +466,7 @@ all_plots <- list(
   "bayes-lease-decay" = plot_9
 )
 
+## 8.2 Export plots ----
 iwalk(
   all_plots,
   ~ ggsave(
@@ -474,7 +477,7 @@ iwalk(
   )
 )
 
-# Save summary table
+## 8.3 Save summary table ----
 save_as_image(
   table_image,
   path = "figures/hdb-resale-flats-prices-summary-table.png"
