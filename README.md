@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-08-01
+Updated: 2026-08-05
 
 Data sources:
   - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
@@ -21,7 +21,9 @@ This project was initially part of the `singapore-data` repository, but I have s
 - [Yearly Trends of Transactions at or Exceeding the Million-dollar Threshold](#yearly-trends-of-transactions-at-or-exceeding-the-million-dollar-threshold)
 - [Million-dollar Flats Distributed by HDB Towns](#million-dollar-flats-distribution-by-hdb-towns)
 - [Per Square-meter Price Trends Across Selected HDB Towns](#per-square-meter-price-trends-across-selected-hdb-towns)
-- [Effect of Lease Decay on Resale Flat Prices](#effect-of-lease-decay-on-per-square-meter-prices)
+- [Impact of Lease Decay on Resale Flat Prices](#impact-of-lease-decay-on-resale-flat-prices)
+  - [Effect of Lease Decay on Price per Sqm using Smoothed Conditional Mean](#effect-of-lease-decay-on-price-per-sqm-using-smoothed-conditional-mean)
+  - [Expected Price per Sqm using a Bayesian Inference Model](#expected-price-per-sqm-using-a-bayesian-inference-model)
 - [Town Premium (Downtown Core areas vs fringe areas)](#town-premium)
 - [Floor Height Premium (Flats on higher floors vs flats on lower floors)](#floor-premium)
 - [Geo-spatial Heatmap of Resale Flat Prices](#geo-spatial-heatmap-of-per-square-meter-prices)
@@ -46,7 +48,6 @@ This is how the data format looks like as provided by the HDB. The raw dataset d
 
 |month   |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price|
 |:-------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|
-|2026-04 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|
 |2026-06 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|
 |2026-03 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|
 |2026-03 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|
@@ -54,6 +55,7 @@ This is how the data format looks like as provided by the HDB. The raw dataset d
 |2026-04 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|
 |2026-05 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|
 |2026-07 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            145|Maisonette       |                1987|60 years 06 months |      1015000|
+|2026-07 |YISHUN |EXECUTIVE        |834   |YISHUN ST 81 |04 TO 06     |            146|Maisonette       |                1988|60 years 06 months |       975000|
 |2026-05 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|
 |2026-07 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|
 
@@ -62,9 +64,6 @@ This is how it looks after some tidying up and prepping. Dates, lease values and
 
 `resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
 
-|month    |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price| price_per_sqm|estate_type       | remaining_lease_numeric| flat_age|age_cohort                 | floor_mid|
-|:--------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|-------------:|:-----------------|-----------------------:|--------:|:--------------------------|---------:|
-|Apr 2026 |YISHUN |EXECUTIVE        |606   |YISHUN ST 61 |07 TO 09     |            142|Apartment        |                1987|60 years 08 months |       830000|      5845.070|Non-mature Estate |                60.66667| 38.33333|Mid-Life (15-50 Years Old) |         8|
 |Jun 2026 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|      6962.963|Non-mature Estate |                57.58333| 41.41667|Mid-Life (15-50 Years Old) |         5|
 |Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333| 38.16667|Mid-Life (15-50 Years Old) |        11|
 |Mar 2026 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|      6815.068|Non-mature Estate |                61.00000| 38.00000|Mid-Life (15-50 Years Old) |        11|
@@ -72,6 +71,7 @@ This is how it looks after some tidying up and prepping. Dates, lease values and
 |Apr 2026 |YISHUN |EXECUTIVE        |827   |YISHUN ST 81 |01 TO 03     |            145|Maisonette       |                1987|60 years 06 months |       960000|      6620.690|Non-mature Estate |                60.50000| 38.50000|Mid-Life (15-50 Years Old) |         2|
 |May 2026 |YISHUN |EXECUTIVE        |828   |YISHUN ST 81 |07 TO 09     |            145|Apartment        |                1988|60 years 09 months |      1068888|      7371.641|Non-mature Estate |                60.75000| 38.25000|Mid-Life (15-50 Years Old) |         8|
 |Jul 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |07 TO 09     |            145|Maisonette       |                1987|60 years 06 months |      1015000|      7000.000|Non-mature Estate |                60.50000| 38.50000|Mid-Life (15-50 Years Old) |         8|
+|Jul 2026 |YISHUN |EXECUTIVE        |834   |YISHUN ST 81 |04 TO 06     |            146|Maisonette       |                1988|60 years 06 months |       975000|      6678.082|Non-mature Estate |                60.50000| 38.50000|Mid-Life (15-50 Years Old) |         5|
 |May 2026 |YISHUN |MULTI-GENERATION |666   |YISHUN AVE 4 |04 TO 06     |            164|Multi Generation |                1987|60 years 08 months |      1120000|      6829.268|Non-mature Estate |                60.66667| 38.33333|Mid-Life (15-50 Years Old) |         5|
 |Jul 2026 |YISHUN |MULTI-GENERATION |605   |YISHUN ST 61 |07 TO 09     |            163|Multi Generation |                1988|60 years 07 months |      1190000|      7300.613|Non-mature Estate |                60.58333| 38.41667|Mid-Life (15-50 Years Old) |         8|
 
@@ -90,9 +90,14 @@ The number of flats transacting at or above SGD$1M accelerrated from 2021 (note 
 A 5-room flat will be more expensive than a 3-room flat. To accurately see if resale prices are skyrocketing everywhere, I use price per square-meter. Comparing price per square-meter gives a fairer comparison between flat types and locations.
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-multivariate-sqm.png)
 
-## Effect of Lease Decay on Resale Flat Prices
+## Impact of Lease Decay on Resale Flat Prices
 Generally, as the lease runs down, the resale prices fall, however resale prices in Mature Estates hold up far better than in Non-mature Estates over the whole lease of the HDB flat. Between 60 and 50 years lease remaining, the prices rise back up slightly, breaking the trend, before collapsing in the last 30 years of the lease. The collapse is much more dramatic in Non-mature Estates.
+
+### Effect of Lease Decay on Price per Sqm using Smoothed Conditional Mean
 ![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-lease-decay.png)
+
+### Expected Price per Sqm using a Bayesian Inference Model
+![](https://github.com/weiyuet/hdb-resale-flat-prices/blob/main/figures/hdb-resale-flat-prices-bayes-lease-decay.png)
 
 ## Town Premium 
 The location of a flat is important. People are willing to pay a substantial premium for a flat in the Downtown Core/Central Area. Highly coveted areas like the Central Area, Queenstown and Bukit Merah show a long tail, indicating an open-ended premium ceiling. Non-mature towns like Choa Chu Kang and Jurong West tend to have a more tightly clustered plot indicating less variance in prices.
