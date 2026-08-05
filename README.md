@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-08-05
+Updated: 2026-08-06
 
 Data sources:
   - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
@@ -64,6 +64,8 @@ This is how it looks after some tidying up and prepping. Dates, lease values and
 
 `resale_flat_prices_clean %>% tail(10) %>% knitr::kable(format = "markdown")`
 
+|month    |town   |flat_type        |block |street_name  |storey_range | floor_area_sqm|flat_model       | lease_commence_date|remaining_lease    | resale_price| price_per_sqm|estate_type       | remaining_lease_numeric| flat_age|age_cohort                 | floor_mid|
+|:--------|:------|:----------------|:-----|:------------|:------------|--------------:|:----------------|-------------------:|:------------------|------------:|-------------:|:-----------------|-----------------------:|--------:|:--------------------------|---------:|
 |Jun 2026 |YISHUN |EXECUTIVE        |746   |YISHUN ST 72 |04 TO 06     |            162|Adjoined flat    |                1984|57 years 07 months |      1128000|      6962.963|Non-mature Estate |                57.58333| 41.41667|Mid-Life (15-50 Years Old) |         5|
 |Mar 2026 |YISHUN |EXECUTIVE        |877   |YISHUN ST 81 |10 TO 12     |            142|Apartment        |                1987|60 years 10 months |       980000|      6901.408|Non-mature Estate |                60.83333| 38.16667|Mid-Life (15-50 Years Old) |        11|
 |Mar 2026 |YISHUN |EXECUTIVE        |836   |YISHUN ST 81 |10 TO 12     |            146|Maisonette       |                1988|61 years           |       995000|      6815.068|Non-mature Estate |                61.00000| 38.00000|Mid-Life (15-50 Years Old) |        11|
