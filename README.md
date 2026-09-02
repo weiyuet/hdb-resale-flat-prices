@@ -2,7 +2,7 @@
 
 Created: 2026-07-03
 
-Updated: 2026-08-06
+Updated: 2026-09-02
 
 Data sources:
   - [`HDB resale flat price data from (data.gov.sg)`](https://data.gov.sg/datasets?topics=housing&resultId=d_8b84c4ee58e3cfc0ece0d773c8ca6abc)
